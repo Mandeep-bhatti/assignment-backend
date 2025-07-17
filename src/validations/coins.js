@@ -1,7 +1,8 @@
 import { BadRequestError } from "../helpers/exceptions.js";
 import { isValidDate } from "../utils/common.js";
 
-export const getCoinHistoryValidaor = (req, res, next) => {
+// --------------NOTE use class validator for more inhncement
+export const getCoinHistoryValidaor = (req, _, next) => {
   try {
     const { params, query } = req;
 
@@ -9,12 +10,13 @@ export const getCoinHistoryValidaor = (req, res, next) => {
       return next(new BadRequestError('coin id is required'));
     }
 
-    if (!isValidDate(query?.lastUpdatedDate)) {
+    // will check it it will exist in req
+    if (lastUpdatedDate && !isValidDate(query?.lastUpdatedDate)) {
       return next(new BadRequestError('latest updated date is invalid.'));
     }
 
-    next(); // only called if no errors
+    next(); // only called if no errors----- >>>>>>>>>>>> just passing the req
   } catch (err) {
-    next(err); // for unexpected errors
+    next(err); // for unexpected errors//  --->>>>>>> it will throw global errot
   }
 };
