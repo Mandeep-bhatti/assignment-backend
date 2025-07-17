@@ -1,4 +1,4 @@
-import { BadRequestError,CustomError } from "../../helpers/exceptions.js";
+import { BadRequestError, CustomError } from "../../helpers/exceptions.js";
 import { getCoinsData } from "../../services/coin.service.js";
 import { HistoryModel } from "../../models/history.js";
 import { isValidDate } from "../../utils/common.js";
@@ -9,7 +9,7 @@ export const getCoins = async (res) => {
     const [err, data] = await getCoinsData({ vs_currency: "usd", order: "market_cap_desc", per_page: 10, page: 1 });
     if (err) {
         const { status, data } = err?.response;
-        throw new CustomError(data,status)
+        throw new CustomError(data, status)
     }
 
     return data
@@ -34,7 +34,7 @@ export const saveCronSnapshot = async () => {
 }
 
 export const getCoinsHistory = async (res, params, query) => {
-    const { lastUpdatedDate } = query;
+    const { lastUpdatedDate, orderBy, orderType } = query;
     let { pageSize, pageNumber } = query;
     const coinId = params?.coinId;
 
@@ -59,6 +59,20 @@ export const getCoinsHistory = async (res, params, query) => {
         })
     }
 
+    if (orderBy && orderType) {
+        const orderValue = -1;
+
+        if (orderType === 'asc') {
+            orderValue = 1;
+        }
+
+        pipeline.push({
+            $sort: {
+                [orderBy?.trim()]: orderValue
+            }
+        });
+    }
+
     const [response] = await HistoryModel.aggregate([
         {
             $match: {
@@ -78,14 +92,14 @@ export const getCoinsHistory = async (res, params, query) => {
     ]);
 
     const { total, data } = response ?? {};
-    return { items: data ?? [], total: total?.count ?? 0 } 
+    return { items: data ?? [], total: total?.count ?? 0 }
 }
 
 export const takeSnapShot = async (res) => {
     const [err, data] = await getCoinsData({ vs_currency: "usd", order: "market_cap_desc", per_page: 10, page: 1 });
 
     if (err) {
-        throw new BadRequestError( 'unable to take snapshot, try again later.')
+        throw new BadRequestError('unable to take snapshot, try again later.')
     }
 
     await saveHistory(data);
