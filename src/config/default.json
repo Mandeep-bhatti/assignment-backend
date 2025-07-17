@@ -1,0 +1,8 @@
+{
+    "app": {
+        "port": "PORT"
+    },
+    "db": {
+        "mongo_uri": "MONGO_URI"
+    }
+}
