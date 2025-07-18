@@ -1,9 +1,10 @@
 import * as CoinService from '../services/coins.js'
 import { SuccessResponse } from '../../helpers/responses.js';
 
-export const getCoins = async (_, res, next) => {
+export const getCoins = async (req, res, next) => {
     try {
-        const data = await CoinService.getCoins(res);
+        const {query}= req
+        const data = await CoinService.getCoins(query);
         return SuccessResponse(res, { data });
     } catch (err) {
         next(err)
@@ -13,7 +14,7 @@ export const getCoins = async (_, res, next) => {
 export const getCoinHistory = async (req, res) => {
     try {
         const { query, params } = req
-        const data = await CoinService.getCoinsHistory(res, params, query);
+        const data = await CoinService.getCoinsHistory(params, query);
         return SuccessResponse(res, { data });
     } catch (err) {
         next(err)
@@ -23,7 +24,7 @@ export const getCoinHistory = async (req, res) => {
 
 export const takeSnapShot = async (_, res) => {
     try {
-        await CoinService.takeSnapShot(res);
+        await CoinService.takeSnapShot();
         return SuccessResponse(res);
     } catch (err) {
         next(err)
